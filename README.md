@@ -6,8 +6,11 @@ Este proyecto tiene como objetivo analizar cómo las familias gastan su dinero e
 - [RENIEC](https://www.reniec.gob.pe/portal/masServiciosLinea.htm)
 - [INEI](https://www.inei.gob.pe/estadisticas-indice-tematico/)
 
-Ademas en lugar de insertar los datos de manera manual, utilicé el siguiente código **SQL** para importar los datos desde los archivos CSV directamente a la base de datos MySQL:
+***
+Poseo de un amplio conocimiento en SQL queries, que incluyen la creación de bases de datos, la manipulación de tablas y la gestión de datos. Mi experiencia abarca el uso de `CREATE DATABASE`, `USE DATABASE`, `CREATE TABLE` y `DROP TABLE` para la configuración de bases de datos y tablas, así como la modificación de estructuras existentes con `ALTER TABLE` para agregar o eliminar claves y restricciones. Además, tengo una experiencia significativa en la ejecución de consultas esenciales como `INSERT INTO`, `SELECT`, `GROUP BY`, `SUM` e `INNER JOIN`, lo que permite una recuperación y agregación de datos eficiente. También soy hábil en operaciones más avanzadas, como `CREATE VIEW`, `CREATE TRIGGER`, `SHOW TRIGGERS` y `LOAD DATA INFILE` para la gestión y automatización de datos. Mi competencia se extiende al trabajo con índices, optimizando consultas mediante `CREATE INDEX`, `DROP INDEX` y `SHOW INDEXES`.
+***
 
+Ademas en lugar de insertar los datos de manera manual, utilicé el siguiente código **SQL** para importar los datos desde los archivos CSV directamente a la base de datos MySQL:
 ```sql
 LOAD DATA INFILE 'C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/ubigeo-reniec(ubigeo_reniec).csv'
 INTO TABLE ubigeo_database
@@ -15,9 +18,6 @@ FIELDS TERMINATED BY ',' ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
 IGNORE 1 ROWS;
 ```
-
-Posteriormente, después de haber limpiado las tablas utilizando las bibliotecas de **Python** como **pandas**, se obtuvieron tablas mucho más limpias y organizadas, facilitando su posterior procesamiento en MySQL. Estos datos fueron manipulados y analizados utilizando consultas SQL para obtener insights significativos.
-
 
 ## Tabla INEI
 
