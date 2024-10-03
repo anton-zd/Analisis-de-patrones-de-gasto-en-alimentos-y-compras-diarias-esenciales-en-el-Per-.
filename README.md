@@ -6,16 +6,28 @@ Este proyecto tiene como objetivo analizar cómo las familias gastan su dinero e
 - [RENIEC](https://www.reniec.gob.pe/portal/masServiciosLinea.htm)
 - [INEI](https://www.inei.gob.pe/estadisticas-indice-tematico/)
 
-Posteriormente, después de haber limpiado las tablas utilizando las bibliotecas de Python como pandas, se obtuvieron tablas mucho más limpias y organizadas, facilitando su posterior procesamiento en MySQL. Estos datos fueron manipulados y analizados utilizando consultas SQL para obtener insights significativos.
+Ademas en lugar de insertar los datos de manera manual, utilicé el siguiente código **SQL** para importar los datos desde los archivos CSV directamente a la base de datos MySQL:
+
+```sql
+LOAD DATA INFILE 'C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/ubigeo-reniec(ubigeo_reniec).csv'
+INTO TABLE ubigeo_database
+FIELDS TERMINATED BY ',' ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+IGNORE 1 ROWS;
+```
+
+Posteriormente, después de haber limpiado las tablas utilizando las bibliotecas de **Python** como **pandas**, se obtuvieron tablas mucho más limpias y organizadas, facilitando su posterior procesamiento en MySQL. Estos datos fueron manipulados y analizados utilizando consultas SQL para obtener insights significativos.
+
 
 ## Tabla INEI
 
-| ID del Proyecto | Mes  | Ubigeo  | Estrato Socioeconómico | Nombre del Producto            | Unidad      | Sistema de Unidades | Marca           | Lugar de Compra                     | Monto Total | Tipo de Pago    |
-|-----------------|------|---------|------------------------|--------------------------------|-------------|---------------------|-----------------|-------------------------------------|-------------|-----------------|
-| 1301            | 12   | 240101  | Medio                  | HUEVO DE GALLINA ROSADO A GRANEL | UNIDAD      | Gramos              | SIN MARCA - SM  | BODEGA AL POR MENOR                | 2           | Precio Normal   |
-| 1302            | 12   | 240101  | Medio                  | LECHE EVAPORADA                 | LATA GRANDE | Gramos              | GLORIA          | BODEGA AL POR MENOR                | 3           | Precio Normal   |
-| 1303            | 12   | 240101  | Medio                  | ARROZ CORRIENTE A GRANEL        | KILO        | No Definido         | SIN MARCA - SM  | BODEGA AL POR MENOR                | 3           | Precio Normal   |
-| 1304            | 12   | 240101  | Medio                  | GALLINA EVISCERADA              | GRAMO       | No Definido         | SIN MARCA - SM  | MERCADO - PUESTO DE MERCADO POR MENOR | 10         | Precio Normal   |
+| ID  | Mes | Ubigeo  | Estrato | Producto                      | Unidad  | Marca         | Lugar                     | Monto | Pago         |
+|-----|-----|---------|---------|-------------------------------|---------|---------------|---------------------------|-------|--------------|
+| 1301 | 12  | 240101  | Medio   | Huevo de Gallina Rosado        | UNIDAD  | SIN MARCA - SM | Bodega al por menor        | 2     | Precio Normal |
+| 1302 | 12  | 240101  | Medio   | Leche Evaporada                | LATA    | GLORIA        | Bodega al por menor        | 3     | Precio Normal |
+| 1303 | 12  | 240101  | Medio   | Arroz Corriente                | KILO    | SIN MARCA - SM | Bodega al por menor        | 3     | Precio Normal |
+| 1304 | 12  | 240101  | Medio   | Gallina Eviscerada             | GRAMO   | SIN MARCA - SM | Mercado - Puesto de Mercado | 10    | Precio Normal |
+| 1305 | 12  | 240101  | Medio   | Tomate Redondo                 | GRAMO   | SIN MARCA - SM | Mercado - Puesto de Mercado | 1     | Precio Normal |
 
 
 ## Tabla RENIEC
@@ -27,5 +39,10 @@ Posteriormente, después de haber limpiado las tablas utilizando las bibliotecas
 | 3               | 190104  | Catacaos       | Piura     | Piura        | 74562     |
 | 4               | 190106  | La Unión       | Piura     | Piura        | 41736     |
 | 5               | 100104  | Parcona        | Ica       | Ica          | 56336     |
+
+
+
+
+
 
 
