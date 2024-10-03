@@ -76,6 +76,7 @@ ORDER BY Frecuencia DESC
 LIMIT 5;
 ```
 ## Resultados del INNER JOIN
+En la tabla podemos obervar que el departamento de **Piura** y distrito de **Tambo Grando** es el que mas frecuencia tiene en la compra de productos en formato combo, en las bodegas al por menor, en productos como la **Canela a Granel** con una frecuencia de 47 veces y de esa forma tambien identificamos como tambien en el distrito de **Tambo Grande** el clavo de olor envasado es 
 
 |   Frecuencia | estrato    | product_name           | lugar               | tipo_pago   | departamento   | distrito     |
 |-------------:|:-----------|:-----------------------|:--------------------|:------------|:---------------|:-------------|
