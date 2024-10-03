@@ -63,8 +63,23 @@ Este trigger guarda automáticamente una copia de los registros eliminados en un
 | 701769 | 250101  | Medio Bajo | UTO      | SIN MARCA - SM | AMBULANTE - EXCEPTO DE VENTA DE COMIDA     | 1     |
 | 701806 | 250101  | Medio Bajo | UTO      | SIN MARCA - SM | PERSONA PARTICULAR                        | 0     |
 
+***
+Al utilizar la consulta SQL propuesta, podemos fusionar las tablas inei_project y peru_location a través de un inner join basado en la columna ubigeo. Esto nos permite combinar información de productos y gastos con datos geográficos, proporcionando un análisis más completo. De este modo, es posible obtener mejores resultados y visualizar patrones de gasto según las regiones del país. Esta integración de datos enriquece nuestras capacidades analíticas, permitiendo identificar tendencias y comportamientos con mayor precisión.
 
+```sql
+SELECT I.ubigeo, I.estrato, I.product_name, I.lugar, I.monto_total, U.distrito, U.provincia, U.departamento 
+FROM inei_project AS I
+INNER JOIN peru_location AS U ON I.ubigeo = U.ubigeo
+WHERE I.monto_total BETWEEN 500 AND 1000 
+AND U.departamento <> 'Callao'
+LIMIT 10;
+```
+## Resultados del INNER JOIN
 
-
-
-
+| Ubigeo  | Estrato    | Producto             | Lugar                                  | Monto | Distrito  | Provincia | Depto. |
+|---------|------------|----------------------|----------------------------------------|-------|-----------|-----------|--------|
+| 200101  | Medio Alto | MORRAL DE CUERO       | TIENDA - VENTA ARTICULOS DE CUERO       | 540   | Puno      | Puno      | Puno   |
+| 200104  | Medio      | PLANCHA DENTAL        | CENTRO ODONTOLOGICO - CONSULTORIO       | 500   | Capachica | Puno      | Puno   |
+| 200104  | Medio      | GASTO DE MISA         | IGLESIA - CAPILLA                      | 500   | Capachica | Puno      | Puno   |
+| 140101  | Medio Bajo | SERVICIO DE DECORACION| No Definido                            | 500   | Lima      | Lima      | Lima   |
+| 140101  | Alto       | TELEVISOR SMART       | TOTTUS                                 | 950   | Lima      | Lima      | Lima   |
