@@ -7,7 +7,7 @@ Este proyecto tiene como objetivo analizar cómo las familias gastan su dinero e
 - [INEI](https://www.inei.gob.pe/estadisticas-indice-tematico/)
 
 ***
-Poseo de un amplio conocimiento en SQL queries, que incluyen la creación de bases de datos, la manipulación de tablas y la gestión de datos. Mi experiencia abarca el uso de `CREATE DATABASE`, `USE DATABASE`, `CREATE TABLE` y `DROP TABLE` para la configuración de bases de datos y tablas, así como la modificación de estructuras existentes con `ALTER TABLE` para agregar o eliminar claves y restricciones. Además, tengo una experiencia significativa en la ejecución de consultas esenciales como `INSERT INTO`, `SELECT`, `GROUP BY`, `SUM` e `INNER JOIN`, lo que permite una recuperación y agregación de datos eficiente. También soy hábil en operaciones más avanzadas, como `CREATE VIEW`, `CREATE TRIGGER`, `SHOW TRIGGERS` y `LOAD DATA INFILE` para la gestión y automatización de datos. Mi competencia se extiende al trabajo con índices, optimizando consultas mediante `CREATE INDEX`, `DROP INDEX` y `SHOW INDEXES`.
+Poseo de un amplio conocimiento en SQL queries, que incluyen la creación de bases de datos, la manipulación de tablas y la gestión de datos. Mi experiencia abarca el uso de `CREATE DATABASE`, `USE DATABASE`, `CREATE TABLE` y `DROP TABLE` para la configuración de bases de datos y tablas, así como la modificación de estructuras existentes con `ALTER TABLE` para agregar o eliminar claves y restricciones. Además, tengo una experiencia significativa en la ejecución de consultas esenciales como `INSERT INTO`, `SELECT`, `GROUP BY`, `SUM` e `INNER JOIN`, lo que permite una recuperación y agregación de datos eficiente. También soy hábil en operaciones más avanzadas, como `CREATE VIEW`, `CREATE TRIGGER`, `SHOW TRIGGERS` y `LOAD DATA INFILE` para la gestión y automatización de datos. Mi competencia se extiende al trabajo con índices, optimizando consultas mediante `CREATE INDEX`, `DROP INDEX`, `SHOW INDEXES` y mas.
 ***
 
 Ademas en lugar de insertar los datos de manera manual, utilicé el siguiente código **SQL** para importar los datos desde los archivos CSV directamente a la base de datos MySQL:
@@ -64,22 +64,24 @@ Este trigger guarda automáticamente una copia de los registros eliminados en un
 | 701806 | 250101  | Medio Bajo | UTO      | SIN MARCA - SM | PERSONA PARTICULAR                        | 0     |
 
 ***
-Al utilizar la consulta SQL propuesta, podemos fusionar las tablas inei_project y peru_location a través de un inner join basado en la columna ubigeo. Esto nos permite combinar información de productos y gastos con datos geográficos, proporcionando un análisis más completo. De este modo, es posible obtener mejores resultados y visualizar patrones de gasto según las regiones del país. Esta integración de datos enriquece nuestras capacidades analíticas, permitiendo identificar tendencias y comportamientos con mayor precisión.
+Por ejemplo, ahora podemos examinar el query y su resultado (la tabla) donde primero utilicé `SELECT` para especificar las columnas que quería mostrar, junto con sus respectivas abreviaturas. Me he referido a `inei_project` como `I` y a `peru_location` como `P`. La operación `INNER JOIN` funciona fusionando dos tablas en base a una columna común, lo que en este caso nos permitió identificar los `DEPARTAMENTOS`, `DISTRITO`, `PRODUCTO` y `ESTRATO` que más frecuentemente compran en `Oferta` o `Combo`. A continuación, agrupamos los datos por `estrato`, `nombre_producto`, `lugar`, etc., y los ordenamos por los lugares con mayor frecuencia de compra.
 
 ```sql
-SELECT I.ubigeo, I.estrato, I.product_name, I.lugar, I.monto_total, U.distrito, U.provincia, U.departamento 
+SELECT COUNT(I.lugar)AS Frecuencia, I.estrato, I.product_name, I.lugar, I.tipo_pago, P.departamento, P.distrito 
 FROM inei_project AS I
-INNER JOIN peru_location AS U ON I.ubigeo = U.ubigeo
-WHERE I.monto_total BETWEEN 500 AND 1000 
-AND U.departamento <> 'Callao'
-LIMIT 10;
+INNER JOIN peru_location AS P ON I.ubigeo = P.Ubigeo
+WHERE  I.tipo_pago IN ('Oferta', 'Combo')
+GROUP BY I.estrato, I.product_name, I.lugar, I.tipo_pago, P.departamento, P.distrito 
+ORDER BY Frecuencia DESC
+LIMIT 5;
 ```
 ## Resultados del INNER JOIN
 
-| Ubigeo  | Estrato    | Producto             | Lugar                                  | Monto | Distrito  | Provincia | Depto. |
-|---------|------------|----------------------|----------------------------------------|-------|-----------|-----------|--------|
-| 200101  | Medio Alto | MORRAL DE CUERO       | TIENDA - VENTA ARTICULOS DE CUERO       | 540   | Puno      | Puno      | Puno   |
-| 200104  | Medio      | PLANCHA DENTAL        | CENTRO ODONTOLOGICO - CONSULTORIO       | 500   | Capachica | Puno      | Puno   |
-| 200104  | Medio      | GASTO DE MISA         | IGLESIA - CAPILLA                      | 500   | Capachica | Puno      | Puno   |
-| 140101  | Medio Bajo | SERVICIO DE DECORACION| No Definido                            | 500   | Lima      | Lima      | Lima   |
-| 140101  | Alto       | TELEVISOR SMART       | TOTTUS                                 | 950   | Lima      | Lima      | Lima   |
+|   Frecuencia | estrato    | product_name           | lugar               | tipo_pago   | departamento   | distrito     |
+|-------------:|:-----------|:-----------------------|:--------------------|:------------|:---------------|:-------------|
+|           47 | Bajo       | CANELA ENTERA A GRANEL | BODEGA AL POR MENOR | Combo       | Piura          | Tambo Grande |
+|           37 | Medio Alto | CLAVO DE OLOR ENVASADO | BODEGA AL POR MENOR | Combo       | Piura          | Piura        |
+|           36 | Medio Alto | CANELA ENTERA A GRANEL | BODEGA AL POR MENOR | Combo       | Piura          | Piura        |
+|           35 | Medio Bajo | CANELA ENTERA A GRANEL | BODEGA AL POR MENOR | Combo       | Piura          | Piura        |
+|           32 | Bajo       | CLAVO DE OLOR ENVASADO | BODEGA AL POR MENOR | Combo       | Piura          | Tambo Grande |
+
