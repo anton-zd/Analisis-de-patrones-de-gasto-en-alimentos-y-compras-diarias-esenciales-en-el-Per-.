@@ -3,8 +3,8 @@
 
 Este proyecto tiene como objetivo analizar cómo las familias gastan su dinero en alimentos, con especial atención a la identificación de los artículos más importantes que compran a diario. Mediante consultas SQL y grandes conjuntos de datos, este análisis descubrirá patrones de gasto, priorizará los artículos esenciales de uso diario y brindará información sobre el comportamiento de compra de alimentos a un nivel granular. Los datos utilizados en este proyecto fueron obtenidos de los siguientes sitios web oficiales:
 
-- [RENIEC](https://www.reniec.gob.pe/portal/masServiciosLinea.htm)
-- [INEI](https://www.inei.gob.pe/estadisticas-indice-tematico/)
+- [RENIEC](https://www.reniec.gob.pe/portal/masServiciosLinea.htm) 
+- [INEI](https://www.inei.gob.pe/estadisticas-indice-tematico/) Encuesta Nacional de Presupuestos Familiares (ENAPREF) 2019 - 2020
 
 ***
 Poseo de un amplio conocimiento en SQL queries, que incluyen la creación de bases de datos, la manipulación de tablas y la gestión de datos. Mi experiencia abarca el uso de `CREATE DATABASE`, `USE DATABASE`, `CREATE TABLE` y `DROP TABLE` para la configuración de bases de datos y tablas, así como la modificación de estructuras existentes con `ALTER TABLE` para agregar o eliminar claves y restricciones. Además, tengo una experiencia significativa en la ejecución de consultas esenciales como `INSERT INTO`, `SELECT`, `GROUP BY`, `SUM` e `INNER JOIN`, lo que permite una recuperación y agregación de datos eficiente. También soy hábil en operaciones más avanzadas, como `CREATE VIEW`, `CREATE TRIGGER`, `SHOW TRIGGERS` y `LOAD DATA INFILE` para la gestión y automatización de datos. Mi competencia se extiende al trabajo con índices, optimizando consultas mediante `CREATE INDEX`, `DROP INDEX`, `SHOW INDEXES` y mas.
@@ -41,7 +41,7 @@ IGNORE 1 ROWS;
 | 5               | 100104  | Parcona        | Ica       | Ica          | 56336     |
 
 
-## Tabla RECYLCE BIN
+## FUNCIÓN TRIGGER
 Para asegurar que los datos eliminados de la tabla principal **inei_project** no se pierdan permanentemente, se creó un **trigger** llamado `Recycle_Bin_table`. 
 
 ```sql
@@ -86,3 +86,28 @@ En la tabla podemos obervar que el departamento de **Piura** y distrito de **Tam
 |           35 | Medio Bajo | CANELA ENTERA A GRANEL | BODEGA AL POR MENOR | Combo       | Piura          | Piura        |
 |           32 | Bajo       | CLAVO DE OLOR ENVASADO | BODEGA AL POR MENOR | Combo       | Piura          | Tambo Grande |
 
+
+## TOP 10 PRODUCTOS MAS RELEVANTES PARA LAS FAMILIAS PERUANAS
+A partir de la Encuesta Nacional de Presupuestos Familiares (ENAPREF) 2019 - 2020, realizada por el INEI y que involucró a más de un millón de familias, se puede determinar que el **2.60% de los hogares** priorizan el gasto en pasajes para movilizarse a través del país. 
+Los datos fueron obtenidos mediante una Query, haciendo uso de **MySQL**, lo que permitió acceder a la información de manera eficiente. Posteriormente, estos datos se modelaron en **Power BI** para facilitar su interpretación y mejorar su visualización.
+```sql
+SELECT COUNT(product_name)AS top, product_name FROM inei_project
+GROUP BY product_name
+ORDER BY top DESC
+LIMIT 10;
+```
+
+|   Rank | Product Name                     |
+|-------:|:---------------------------------|
+|  37579 | PASAJE ADULTO URBANO             |
+|  36213 | HUEVO DE GALLINA ROSADO A GRANEL |
+|  28834 | PAN FRANCES                      |
+|  24576 | ALMUERZO MENU                    |
+|  23519 | CEBOLLA ROJA                     |
+|  21508 | LIMON AGRIO                      |
+|  20869 | ZANAHORIA ENTERA                 |
+|  20483 | ARROZ SUPERIOR A GRANEL          |
+|  19826 | PAPA BLANCA                      |
+|  17766 | AZUCAR RUBIA A GRANEL            |
+***
+![Top Most Common Gra](https://github.com/user-attachments/assets/d32cff81-4540-4611-a42d-2ecf86500f26)
