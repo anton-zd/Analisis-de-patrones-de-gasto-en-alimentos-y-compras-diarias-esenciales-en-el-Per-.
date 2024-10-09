@@ -1,254 +1,95 @@
+/* 
+Crearemos tablas con una estructura adecuada y definiremos relaciones precisas para cada columna, 
+utilizando tipos de datos como VARCHAR, TEXT, e INT. Además, emplearemos instrucciones como 
+PRIMARY KEY, AUTO_INCREMENT, y NOT NULL para establecer restricciones. También usaremos el comando 
+IF NOT EXISTS al crear tablas para asegurar que solo se creen si aún no existen.
+*/
 CREATE TABLE IF NOT EXISTS inei_project (
-	id int primary key auto_increment,
-	mes varchar(10),
-    ubigeo varchar(55) NOT NULL,
-    estrato varchar(55),
-    product_name text NOT NULL,
-    unidad_medida varchar(55),
-    sistema_unidades varchar(55),
-    marca varchar(55),
-    medicina varchar(55),
-    lugar text NOT NULL,
-    monto_total varchar(55),
-    tipo_pago varchar(55),
-    FOREIGN KEY (ubigeo) REFERENCES peru_location(bigeo)
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    mes VARCHAR(10),
+    ubigeo VARCHAR(55) NOT NULL,
+    estrato VARCHAR(55),
+    product_name TEXT NOT NULL,
+    unidad_medida VARCHAR(55),
+    sistema_unidades VARCHAR(55),
+    marca VARCHAR(55),
+    medicina VARCHAR(55),
+    lugar TEXT NOT NULL,
+    monto_total VARCHAR(55),
+    tipo_pago VARCHAR(55)
 );
-CREATE TABLE inei_project (
-	id int primary key auto_increment,
-	Ubigeo VARCHAR(55),
-    Distrito VARCHAR(55),
-    Provincia VARCHAR(55),
-    Departamento VARCHAR(55),
-    Poblacion int
+
+CREATE TABLE IF NOT EXISTS peru_location (
+    location_id INT PRIMARY KEY AUTO_INCREMENT,
+    ubigeo VARCHAR(55),
+    distrito VARCHAR(55),
+    provincia VARCHAR(55),
+    departamento VARCHAR(55),
+    poblacion INT
 );
+
 CREATE TABLE IF NOT EXISTS Recycle_Bin (
-	recycle_bin_id int primary key,
-    ubigeo varchar(55) NOT NULL,
-    estrato varchar(55),
-    product_name varchar(255) NOT NULL,
-    marca varchar(55),
-    lugar varchar(255) NOT NULL,
-    monto_total varchar(55),
+    recycle_bin_id INT PRIMARY KEY,
+    ubigeo VARCHAR(55) NOT NULL,
+    estrato VARCHAR(55),
+    product_name VARCHAR(255) NOT NULL,
+    marca VARCHAR(55),
+    lugar VARCHAR(255) NOT NULL,
+    monto_total VARCHAR(55),
     FOREIGN KEY (ubigeo) REFERENCES inei_project(ubigeo)
 );
 
-SELECT * FROM recycle_bin
-LIMIT 20;
+/*
+En este caso, utilizamos el comando ALTER TABLE para realizar dos operaciones. La primera es cambiar el 
+nombre de la columna 'id' a 'project_id', y la segunda es añadir una nueva CONSTRAINT que convierte la columna 
+'ubigeo' en una FOREIGN KEY.
+*/
+ALTER TABLE inei_project 
+    RENAME COLUMN id TO project_id,
+    ADD CONSTRAINT fk_ubigeo FOREIGN KEY (ubigeo) REFERENCES peru_location(ubigeo);
 
-ALTER TABLE recycle_bin
-ADD CONSTRAINT FK_recycle_bin_ubigeo
-FOREIGN KEY (ubigeo) REFERENCES inei_project(ubigeo);
-
-DELETE FROM inei_project 
-WHERE project_id IN ('320585', '701769', '701806');
-
-DROP TABLE recycle_bin;
-
-SELECT project_id, lugar, monto_total FROM inei_project
-WHERE project_id = (
-	SELECT project_id FROM inei_project
-    WHERE product_name = ' U A'
-)
-LIMIT 20;
-
-SELECT COUNT(project_id) , product_name FROM inei_project
-GROUP BY product_name
-HAVING COUNT(project_id) = 1
-LIMIT 20;
-
-
-
-DELETE FROM inei_project 
-WHERE id = '496637';
-
-
-
-ALTER TABLE inei_project ADD CONSTRAINT fk_ubigeo 
-FOREIGN KEY (ubigeo) REFERENCES peru_location(Ubigeo);
-
-CREATE INDEX fk_index_ubigeo ON peru_location(Ubigeo);
-
-
-DROP INDEX inei_pro_lug_idx ON inei_project;
-
-
-SHOW INDEXES FROM peru_location;
-
-ALTER TABLE peru_location2 RENAME peru_location;
-
+/* 
+En esta ocasión, podemos usar el comando ALTER TABLE para cambiar el tipo de dato de una columna. En este caso, 
+se trata de la columna ubigeo, que cambia de tipo VARCHAR(55) NOT NULL a TINYINT.
+*/
 ALTER TABLE inei_project
-ADD CONSTRAINT fk_ubigeo FOREIGN KEY (ubigeo) REFERENCES ubigeo_database(Ubigeo);
+	MODIFY ubigeo TINYINT;
 
-SELECT * FROM inei_project 
-WHERE unidad_medida IS NULL AND TRIM(unidad_medida) <> ''
-LIMIT 400;
+/* 
+En este caso, utilizamos el comando ALTER TABLE para realizar tres operaciones en la tabla 'peru_location'. 
+Primero, eliminamos la clave primaria existente con DROP PRIMARY KEY. Luego, añadimos una nueva columna 
+'location_id' como clave primaria con AUTO_INCREMENT y NOT NULL, garantizando la unicidad de cada registro. 
+Finalmente, cambiamos el tipo de dato de la columna 'distrito' a VARCHAR(55) para ajustar su longitud.
+*/
+ALTER TABLE peru_location 
+    DROP PRIMARY KEY,
+    ADD location_id INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
+    MODIFY distrito VARCHAR(55);
 
+/* 
+Es una buena práctica utilizar índices, por ello decidí crear dos de ellos para optimizar las consultas en 
+las tablas 'inei_project' y 'peru_location'.
+*/
+CREATE INDEX inei_pro_lug_idx ON inei_project (product_name, lugar);
+CREATE INDEX inei_dis_dep_idx ON peru_location (distrito, departamento);
 
-SELECT count(distrito) FROM peru_location2
-LIMIT 10;
-
-
-SELECT COUNT(I.lugar)AS Frecuencia, I.estrato, I.product_name, I.lugar, I.tipo_pago, P.departamento, P.distrito 
-FROM inei_project AS I
-INNER JOIN peru_location AS P ON I.ubigeo = P.Ubigeo
-WHERE  I.tipo_pago IN ('Oferta', 'Combo')
-GROUP BY I.estrato, I.product_name, I.lugar, I.tipo_pago, P.departamento, P.distrito 
-ORDER BY Frecuencia DESC
-LIMIT 10;
-
-SELECT * FROM peru_location
-LIMIT 20;
-
-SELECT * FROM recycle_bin
-LIMIT 112;
+-- View creation
+CREATE VIEW top_20_places AS
+    SELECT COUNT(ubigeo) AS numero, lugar
+    FROM inei_project
+    GROUP BY lugar
+    ORDER BY numero DESC
+    LIMIT 20;
 
 CREATE VIEW estrato_per_located AS
-	SELECT COUNT(I.estrato), I.estrato, P.departamento, P.distrito FROM inei_project AS I
-	INNER JOIN peru_location AS P ON I.ubigeo = P.Ubigeo 
-	GROUP BY I.estrato, P.departamento, P.distrito
-	ORDER BY COUNT(I.estrato) DESC
-	LIMIT 30
-;
+    SELECT COUNT(I.estrato), I.estrato, P.departamento, P.distrito 
+    FROM inei_project AS I
+    INNER JOIN peru_location AS P ON I.ubigeo = P.ubigeo 
+    GROUP BY I.estrato, P.departamento, P.distrito
+    ORDER BY COUNT(I.estrato) DESC
+    LIMIT 30;
 
-UPDATE inei_proje
-SET sistema_unidades = 'No Definido'
-WHERE sistema_unidades = 'No Corresponde';
-
-UPDATE inei_project
-SET marca = CASE 
-	WHEN marca = '' THEN 'SIN MARCA - SM'
-    ELSE marca
-END;
-
-ALTER TABLE inei_project DROP COLUMN mes_abreviado;
-
-UPDATE inei_project
-SET mes = CASE mes
-    WHEN 'Ago.' THEN '8'
-    WHEN 'Dic.' THEN '12'
-    WHEN 'Ene.' THEN '1'
-    WHEN 'Feb.' THEN '2'
-    WHEN 'Jul.' THEN '7'
-    WHEN 'Jun.' THEN '6'
-    WHEN 'Nov.' THEN '11'
-    WHEN 'Oct.' THEN '10'
-    WHEN 'Set.' THEN '9'
-    ELSE mes
-END;
-
-SELECT * FROM peru_location
-LIMIT 10;
-
-
-
-SELECT COUNT(product_name) AS Products, estrato FROM inei_project
-HAVING estrato = Alto
-LIMIT 100;
-
-SELECT I.estrato, I.product_name, I.lugar, SUM(I.monto_total), P.distrito, P.departamento FROM inei_project AS I 
-INNER JOIN peru_location AS P ON I.ubigeo = P.Ubigeo
-GROUP BY I.estrato, I.product_name, I.lugar, P.distrito, P.departamento
-HAVING SUM(I.monto_total) >= 500
-ORDER BY SUM(I.monto_total) DESC
-LIMIT 30;
-
-
-SELECT COUNT(I.product_name) AS Top, I.product_name FROM inei_project AS I
-INNER JOIN peru_location AS P ON I.ubigeo = P.Ubigeo
-GROUP BY I.product_name
-ORDER BY Top DESC
-LIMIT 30;
-
-SELECT COUNT(*) FROM inei_project;
-
-SELECT COUNT(product_name)AS top, product_name FROM inei_project
-GROUP BY product_name
-ORDER BY top DESC;
-
-
-SHOW TRIGGERS LIKE 'Recycle_Bin_table';
-
-
-
-SELECT * FROM inei_project
-WHERE tipo_pago <> 'Precio Normal' AND 'No Definido'
-LIMIT 10;
-
-SELECT COUNT(*), product_name FROM inei_project
-group by product_name
-LIMIT 20;
-
-SELECT project_id, product_name FROM inei_project
-WHERE product_name = ' UTO'
-LIMIT 100;
-
-
-
-CREATE VIEW top_20_places AS
-	SELECT COUNT(ubigeo) AS numero, lugar
-	FROM inei_project
-	GROUP BY lugar
-	ORDER BY numero DESC
-	LIMIT 20
-;
-
-
-
-SELECT I.ubigeo, I.estrato, I.product_name, I.lugar, I.monto_total, U.distrito, U.provincia, U.departamento 
-FROM inei_project AS I
-INNER JOIN peru_location AS U ON I.ubigeo = U.ubigeo
-WHERE I.monto_total BETWEEN 500 AND 1000 
-AND U.departamento <> 'Callao'
-LIMIT 10;
-
-
-ALTER TABLE ubigeo_database RENAME peru_location;
-
-CREATE INDEX inei_pro_lug_idx ON inei_project (product_name, lugar);
-CREATE INDEX inei_dis_dep_idx ON ubigeo_database (Distrito, Departamento);
-
-
-
-
-SELECT *
-FROM inei_project
-WHERE LENGTH(lugar) >= 140
-LIMIT 100;
-
-ALTER TABLE peru_location 
-modify Distrito varchar(55);
-
-ALTER TABLE peru_location DROP primary key;
-
-ALTER TABLE peru_location ADD location_id int primary key auto_increment not null; 
-
-ALTER TABLE inei_doject RENAME inei_project;
-
-
-LOAD DATA INFILE 'C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/ubigeo-reniec(ubigeo_reniec).csv'
-INTO TABLE ubigeo_database
-FIELDS TERMINATED BY ',' ENCLOSED BY '\"'
-LINES TERMINATED BY '\n' 
-IGNORE 1 ROWS;
-
-INSERT INTO temp_peru_location
-(ubigeo, distrito, provincia, departamento, poblacion)
-SELECT ubigeo, distrito, provincia, departamento, poblacion
-FROM peru_location;
-
-CREATE TABLE peru_location2 (
-	location_id int primary key auto_increment not null,
-	ubigeo varchar(55),
-	distrito varchar(55), 
-	provincia varchar(55), 
-	departamento varchar(55), 
-	poblacion int
-);
-
-DROP TABLE peru_location2;
-
-ALTER TABLE inei_project RENAME COLUMN id TO project_id;
-
+-- Trigger creation for recycle bin
 DELIMITER $$
 CREATE TRIGGER Recycle_Bin_table
     BEFORE DELETE ON inei_project
@@ -259,6 +100,47 @@ BEGIN
 END $$
 DELIMITER ;
 
+-- Data manipulation examples
+INSERT INTO temp_peru_location (ubigeo, distrito, provincia, departamento, poblacion)
+    SELECT ubigeo, distrito, provincia, departamento, poblacion FROM peru_location;
 
+UPDATE inei_project
+SET sistema_unidades = 'No Definido'
+WHERE sistema_unidades = 'No Corresponde';
 
+UPDATE inei_project
+SET marca = CASE 
+    WHEN marca = '' THEN 'SIN MARCA - SM'
+    ELSE marca
+END;
 
+DELETE FROM inei_project 
+WHERE project_id IN ('320585', '701769', '701806');
+
+-- Data import example
+LOAD DATA INFILE 'C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/ubigeo-reniec(ubigeo_reniec).csv'
+INTO TABLE peru_location
+FIELDS TERMINATED BY ',' ENCLOSED BY '\"'
+LINES TERMINATED BY '\n' 
+IGNORE 1 ROWS;
+
+-- Example queries for data analysis
+SELECT COUNT(I.lugar) AS Frecuencia, I.estrato, I.product_name, I.lugar, I.tipo_pago, P.departamento, P.distrito 
+FROM inei_project AS I
+INNER JOIN peru_location AS P ON I.ubigeo = P.ubigeo
+WHERE I.tipo_pago IN ('Oferta', 'Combo')
+GROUP BY I.estrato, I.product_name, I.lugar, I.tipo_pago, P.departamento, P.distrito 
+ORDER BY Frecuencia DESC
+LIMIT 10;
+
+SELECT I.estrato, I.product_name, I.lugar, SUM(I.monto_total), P.distrito, P.departamento 
+FROM inei_project AS I 
+INNER JOIN peru_location AS P ON I.ubigeo = P.ubigeo
+GROUP BY I.estrato, I.product_name, I.lugar, P.distrito, P.departamento
+HAVING SUM(I.monto_total) >= 500
+ORDER BY SUM(I.monto_total) DESC
+LIMIT 30;
+
+-- Final cleanup commands (optional)
+DROP TABLE IF EXISTS peru_location2;
+DROP INDEX inei_pro_lug_idx ON inei_project;
