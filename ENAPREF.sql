@@ -73,7 +73,11 @@ las tablas 'inei_project' y 'peru_location'.
 CREATE INDEX inei_pro_lug_idx ON inei_project (product_name, lugar);
 CREATE INDEX inei_dis_dep_idx ON peru_location (distrito, departamento);
 
--- View creation
+/*
+Creamos dos vistas para analizar los datos de 'inei_project'. La vista 'top_20_places' muestra los 20 lugares 
+con más registros, mientras que 'estrato_per_located' presenta el conteo de estratos por ubicación específica 
+(departamento y distrito) para los 30 principales, uniendo ambas tablas por la columna 'ubigeo'.
+*/
 CREATE VIEW top_20_places AS
     SELECT COUNT(ubigeo) AS numero, lugar
     FROM inei_project
@@ -89,7 +93,11 @@ CREATE VIEW estrato_per_located AS
     ORDER BY COUNT(I.estrato) DESC
     LIMIT 30;
 
--- Trigger creation for recycle bin
+/*
+Creamos un trigger llamado 'Recycle_Bin_table' que se activa antes de cada eliminación en 'inei_project'. 
+Este trigger inserta los datos eliminados en la tabla 'Recycle_Bin', guardando un respaldo de las columnas clave 
+de cada fila eliminada (como 'ubigeo', 'estrato', y otros campos) en 'Recycle_Bin'.
+*/
 DELIMITER $$
 CREATE TRIGGER Recycle_Bin_table
     BEFORE DELETE ON inei_project
@@ -100,10 +108,28 @@ BEGIN
 END $$
 DELIMITER ;
 
--- Data manipulation examples
+/*
+Este comando inserta datos en la tabla 'temp_peru_location' desde la tabla 'peru_location'. 
+Específicamente, selecciona las columnas 'ubigeo', 'distrito', 'provincia', 'departamento' y 'poblacion' 
+de 'peru_location' y las copia en 'temp_peru_location'.
+
+Se utiliza un comando `INSERT INTO ... SELECT ...` para realizar la transferencia de datos de forma eficiente. 
+De esta manera, se puede hacer un respaldo o trabajar temporalmente con una copia de los datos de 'peru_location' 
+sin afectar la tabla original.
+*/
 INSERT INTO temp_peru_location (ubigeo, distrito, provincia, departamento, poblacion)
     SELECT ubigeo, distrito, provincia, departamento, poblacion FROM peru_location;
 
+/*
+Estos comandos actualizan valores en la tabla 'inei_project' para estandarizar o corregir datos específicos.
+
+El primer comando cambia el valor de 'sistema_unidades' a 'No Definido' en las filas donde antes era 'No Corresponde'. 
+Esto ayuda a mantener consistencia en los datos para valores similares.
+
+El segundo comando actualiza la columna 'marca', asignando 'SIN MARCA - SM' en las filas donde el campo 'marca' 
+está vacío (''). Para otros valores de 'marca', deja el contenido original sin cambios. Esta técnica usa un 
+`CASE` para aplicar condiciones dentro de la actualización.
+*/
 UPDATE inei_project
 SET sistema_unidades = 'No Definido'
 WHERE sistema_unidades = 'No Corresponde';
@@ -114,17 +140,35 @@ SET marca = CASE
     ELSE marca
 END;
 
-DELETE FROM inei_project 
-WHERE project_id IN ('320585', '701769', '701806');
+/*
+Este comando carga aproximadamente 1.9 millónes de registros en la tabla 'peru_location' desde el archivo CSV ubicado en 
+'C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/ubigeo-reniec(ubigeo_reniec).csv'. 
 
--- Data import example
+Se especifica que los campos están delimitados por comas y encerrados entre comillas dobles. 
+Cada fila en el archivo termina con un salto de línea, y la primera fila (generalmente de encabezados) es ignorada.
+*/
 LOAD DATA INFILE 'C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/ubigeo-reniec(ubigeo_reniec).csv'
 INTO TABLE peru_location
 FIELDS TERMINATED BY ',' ENCLOSED BY '\"'
 LINES TERMINATED BY '\n' 
 IGNORE 1 ROWS;
 
--- Example queries for data analysis
+/*
+Estos comandos extraen información clave para analizar la relación entre productos, lugares y su comportamiento 
+de venta, útil para comprender patrones comerciales en 'inei_project' al unir información geográfica de 'peru_location'.
+
+El primer comando obtiene los 10 registros principales de productos vendidos en 'Oferta' o 'Combo', agrupados 
+por características como estrato, producto, lugar y detalles de ubicación (departamento y distrito). La columna 
+'Frecuencia' muestra cuántas veces se registran estas combinaciones, ordenadas en orden descendente.
+
+El segundo comando proporciona un análisis de ingresos al sumar 'monto_total' de productos por estrato, lugar, 
+producto, distrito y departamento. Se filtran únicamente los registros con ingresos iguales o superiores a 500. 
+El resultado, ordenado de mayor a menor, muestra los 30 principales ingresos para identificar oportunidades de 
+mayor valor en el mercado.
+
+Estas consultas son ideales para evaluar tanto la popularidad de ciertos tipos de pago como el rendimiento financiero 
+según localización y tipo de producto, ofreciendo un análisis geoestratégico detallado.
+*/
 SELECT COUNT(I.lugar) AS Frecuencia, I.estrato, I.product_name, I.lugar, I.tipo_pago, P.departamento, P.distrito 
 FROM inei_project AS I
 INNER JOIN peru_location AS P ON I.ubigeo = P.ubigeo
@@ -141,6 +185,17 @@ HAVING SUM(I.monto_total) >= 500
 ORDER BY SUM(I.monto_total) DESC
 LIMIT 30;
 
--- Final cleanup commands (optional)
+/*
+Este comando elimina registros específicos en 'inei_project' donde el 'project_id' coincide con los valores 
+'320585', '701769' o '701806', removiendo estos registros de forma permanente de la tabla.
+*/
+DELETE FROM inei_project 
+WHERE project_id IN ('320585', '701769', '701806');
+
+/*
+El primer comando elimina la tabla 'peru_location2' si existe, limpiando la base de datos de tablas innecesarias. 
+El segundo comando elimina el índice 'inei_pro_lug_idx' en 'inei_project', útil si el índice ya no se necesita o 
+para optimizar futuras consultas.
+*/
 DROP TABLE IF EXISTS peru_location2;
 DROP INDEX inei_pro_lug_idx ON inei_project;
