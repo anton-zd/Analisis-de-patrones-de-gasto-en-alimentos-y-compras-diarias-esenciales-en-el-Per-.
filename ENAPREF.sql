@@ -73,6 +73,17 @@ las tablas 'inei_project' y 'peru_location'.
 CREATE INDEX inei_pro_lug_idx ON inei_project (product_name, lugar);
 CREATE INDEX inei_dis_dep_idx ON peru_location (distrito, departamento);
 
+/* 
+El comando cuenta el cada valor en la columna `unidad_medida` de la tabla `inei_project`, 
+excluyendo los valores 'VEZ' y 'ATADO'. Luego, agrupa los resultados por cada valor único de `unidad_medida`
+y los ordena en orden descendente según su frecuencia de aparición. 
+*/
+SELECT unidad_medida, COUNT(unidad_medida) AS top FROM inei_project
+GROUP BY unidad_medida
+HAVING unidad_medida NOT IN ('VEZ', 'ATADO')
+ORDER BY top DESC
+LIMIT 10;
+
 /*
 Creamos dos vistas para analizar los datos de 'inei_project'. La vista 'top_20_places' muestra los 20 lugares 
 con más registros, mientras que 'estrato_per_located' presenta el conteo de estratos por ubicación específica 
@@ -199,3 +210,7 @@ para optimizar futuras consultas.
 */
 DROP TABLE IF EXISTS peru_location2;
 DROP INDEX inei_pro_lug_idx ON inei_project;
+
+SELECT * FROM inei_project
+LIMIT 10;
+
