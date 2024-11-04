@@ -1,3 +1,6 @@
+-- Jorge Antony Zarate Davila
+-- Lima Perú
+
 /* 
 Crearemos tablas con una estructura adecuada y definiremos relaciones precisas para cada columna, 
 utilizando tipos de datos como VARCHAR, TEXT, e INT. Además, emplearemos instrucciones como 
