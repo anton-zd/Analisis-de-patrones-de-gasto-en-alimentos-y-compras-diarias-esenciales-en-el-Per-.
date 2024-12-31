@@ -111,3 +111,4 @@ LIMIT 10;
 |  17766 | AZUCAR RUBIA A GRANEL            |
 ***
 ![Top Most Common Gra](https://github.com/user-attachments/assets/d32cff81-4540-4611-a42d-2ecf86500f26)
+Hecho en Power BI
