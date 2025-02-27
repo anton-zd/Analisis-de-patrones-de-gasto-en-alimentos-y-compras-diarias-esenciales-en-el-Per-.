@@ -215,5 +215,5 @@ DROP TABLE IF EXISTS peru_location2;
 DROP INDEX inei_pro_lug_idx ON inei_project;
 
 SELECT * FROM inei_project
-LIMIT 10;
+LIMIT 20;
 
